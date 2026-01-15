@@ -1,17 +1,46 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>SHAMBGURAJE CHASHAK 2026</title>
+<title>Shambguraje Chashak 2026 – Player Registration</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-body{font-family:Arial;background:#f2f2f2;padding:20px}
-.box{max-width:500px;margin:auto;background:#fff;padding:20px;border-radius:10px}
+body{
+  font-family: Arial, sans-serif;
+  background:#f2f2f2;
+  padding:20px;
+}
+.box{
+  max-width:520px;
+  margin:auto;
+  background:#fff;
+  padding:20px;
+  border-radius:10px;
+}
 h1,h3{text-align:center}
-input,select,button{width:100%;padding:10px;margin-top:10px}
-button{background:#0a58ca;color:#fff;border:none;border-radius:6px}
-button:disabled{background:#aaa}
+input,select,button{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+}
+button{
+  background:#0a58ca;
+  color:#fff;
+  border:none;
+  border-radius:6px;
+  font-size:16px;
+}
+.note{
+  font-size:13px;
+  color:#444;
+  margin-top:10px;
+}
+img{
+  width:100%;
+  margin-top:10px;
+  border-radius:6px;
+}
 </style>
 </head>
 
@@ -21,65 +50,86 @@ button:disabled{background:#aaa}
 <h1>SHAMBGURAJE CHASHAK 2026</h1>
 <h3>Player Registration</h3>
 
-<input id="name" placeholder="Name" required>
+<p><b>Entry Fee: ₹300</b></p>
+<p>Scan the UPI QR below using Google Pay / PhonePe / any UPI app.</p>
+
+<!-- 🔴 QR IMAGE -->
+<!-- QR image ko same folder me rakho: qr.png -->
+<img src="qr.png" alt="UPI Payment QR Code">
+
+<p class="note">
+After successful payment, open payment details in your UPI app and copy the
+<b>UPI Transaction ID</b> (12+ digit number). Then upload payment screenshot.
+</p>
+
+<input id="name" placeholder="Full Name" required>
 <input id="age" type="number" placeholder="Age" required>
-<input id="contact" type="tel" placeholder="Contact Number" required>
+<input id="contact" type="tel" placeholder="Mobile Number" required>
 
 <select id="talent" required>
-<option value="">Select Talent</option>
-<option>All-rounder</option>
-<option>Batsman</option>
-<option>Bowler</option>
+  <option value="">Select Playing Role</option>
+  <option>Batsman</option>
+  <option>Bowler</option>
+  <option>All-rounder</option>
 </select>
 
-<input id="photo" type="file" accept="image/*" required>
+<input id="utr" placeholder="UPI Transaction ID (UTR)" required>
+<input id="screenshot" type="file" accept="image/*" required>
 
-<button id="payBtn">Pay ₹1</button>
-<button id="submitBtn" disabled>Submit</button>
+<button onclick="submitForm()">Submit Registration</button>
+
+<p class="note">
+⚠ Duplicate / reused UPI Transaction ID will be rejected automatically.<br>
+⚠ Same payment cannot be used again.
+</p>
 </div>
 
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-
 <script>
-let paid=false;
-let pid="";
+function submitForm(){
 
-document.getElementById("payBtn").onclick=function(){
-var rzp=new Razorpay({
-key:"rzp_live_Fx413TTakfCymo",
-amount:100,
-currency:"INR",
-name:"Shambguraje Chashak 2026",
-handler:function(r){
-paid=true;
-pid=r.razorpay_payment_id;
-document.getElementById("submitBtn").disabled=false;
-alert("Payment Successful");
+  const name = document.getElementById("name").value.trim();
+  const age = document.getElementById("age").value.trim();
+  const contact = document.getElementById("contact").value.trim();
+  const talent = document.getElementById("talent").value;
+  const utr = document.getElementById("utr").value.trim();
+  const file = document.getElementById("screenshot").files[0];
+
+  if(!name || !age || !contact || !talent || !utr || !file){
+    alert("Please fill all required fields.");
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(){
+
+    fetch("https://script.google.com/macros/s/AKfycbzfYxAKCp1r-Y95pWNvuK57uo9idjfwJQUFHEmzuJSO3tCY8D2pt5SiybvJG1ImIn8/exec",{
+      method:"POST",
+      body: JSON.stringify({
+        name: name,
+        age: age,
+        contact: contact,
+        talent: talent,
+        upi_utr: utr,
+        screenshot_url: reader.result
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if(data.status === "success"){
+        alert("Registration successful.");
+        location.reload();
+      }else{
+        alert(data.message || "Submission failed.");
+      }
+    })
+    .catch(()=>{
+      alert("Server error. Please try again.");
+    });
+
+  };
+
+  reader.readAsDataURL(file);
 }
-});
-rzp.open();
-};
-
-document.getElementById("submitBtn").onclick=function(){
-if(!paid){alert("Pay first");return;}
-var f=document.getElementById("photo").files[0];
-var rd=new FileReader();
-rd.onload=function(){
-fetch("https://script.google.com/macros/s/AKfycbz6HQUkxvMs8e4ccL9vZk2Ho7ZVzk3RaZDqD16XVUKjIggumHz4tqSW86ZSn32uUUiNzw/exec",{
-method:"POST",
-body:JSON.stringify({
-name:document.getElementById("name").value,
-age:document.getElementById("age").value,
-contact:document.getElementById("contact").value,
-talent:document.getElementById("talent").value,
-payment_id:pid,
-photo_url:rd.result
-})
-});
-alert("Registration Successful");
-};
-rd.readAsDataURL(f);
-};
 </script>
 
 </body>
