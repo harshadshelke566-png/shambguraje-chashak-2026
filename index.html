@@ -1,134 +1,159 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Shambguraje Chashak 2026 – Player Registration</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8">
+  <title>Shambguraje Chashak 2026 – Registration</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<style>
-body{
-  font-family: Arial, sans-serif;
-  background:#f2f2f2;
-  padding:20px;
-}
-.box{
-  max-width:520px;
-  margin:auto;
-  background:#fff;
-  padding:20px;
-  border-radius:10px;
-}
-h1,h3{text-align:center}
-input,select,button{
-  width:100%;
-  padding:10px;
-  margin-top:10px;
-}
-button{
-  background:#0a58ca;
-  color:#fff;
-  border:none;
-  border-radius:6px;
-  font-size:16px;
-}
-.note{
-  font-size:13px;
-  color:#444;
-  margin-top:10px;
-}
-img{
-  width:100%;
-  margin-top:10px;
-  border-radius:6px;
-}
-</style>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      padding: 20px;
+    }
+    .container {
+      max-width: 420px;
+      background: #fff;
+      padding: 20px;
+      margin: auto;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h1, h2 {
+      text-align: center;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      font-size: 15px;
+    }
+    button {
+      background: #0a3d62;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+    }
+    button:disabled {
+      background: gray;
+    }
+    .note {
+      color: red;
+      font-size: 13px;
+      margin-top: 10px;
+    }
+    img {
+      width: 100%;
+      margin: 10px 0;
+      border-radius: 5px;
+    }
+  </style>
 </head>
 
 <body>
 
-<div class="box">
-<h1>SHAMBGURAJE CHASHAK 2026</h1>
-<h3>Player Registration</h3>
+<div class="container">
+  <h1>SHAMBGURAJE CHASHAK 2026</h1>
+  <h2>Player Registration</h2>
 
-<p><b>Entry Fee: ₹300</b></p>
-<p>Scan the UPI QR below using Google Pay / PhonePe / any UPI app.</p>
+  <p><b>Entry Fee: ₹300 (Google Pay / UPI)</b></p>
 
-<!-- 🔴 QR IMAGE -->
-<!-- QR image ko same folder me rakho: qr.png -->
-<img src="qr.png" alt="UPI Payment QR Code">
+  <!-- QR CODE IMAGE -->
+  <img src="qr.png" alt="Google Pay QR Code">
 
-<p class="note">
-After successful payment, open payment details in your UPI app and copy the
-<b>UPI Transaction ID</b> (12+ digit number). Then upload payment screenshot.
-</p>
+  <p>
+    After successful payment, enter your <b>UPI Transaction ID (UTR)</b>  
+    and upload <b>payment screenshot</b>.
+  </p>
 
-<input id="name" placeholder="Full Name" required>
-<input id="age" type="number" placeholder="Age" required>
-<input id="contact" type="tel" placeholder="Mobile Number" required>
+  <form id="regForm">
 
-<select id="talent" required>
-  <option value="">Select Playing Role</option>
-  <option>Batsman</option>
-  <option>Bowler</option>
-  <option>All-rounder</option>
-</select>
+    <input type="text" id="name" placeholder="Full Name" required>
+    <input type="number" id="age" placeholder="Age" required>
+    <input type="tel" id="contact" placeholder="Mobile Number" required>
 
-<input id="utr" placeholder="UPI Transaction ID (UTR)" required>
-<input id="screenshot" type="file" accept="image/*" required>
+    <select id="talent" required>
+      <option value="">Select Role</option>
+      <option>Bowler</option>
+      <option>Batsman</option>
+      <option>All-rounder</option>
+      <option>Wicket Keeper</option>
+    </select>
 
-<button onclick="submitForm()">Submit Registration</button>
+    <input type="text" id="utr" placeholder="UPI Transaction ID (UTR)" required>
 
-<p class="note">
-⚠ Duplicate / reused UPI Transaction ID will be rejected automatically.<br>
-⚠ Same payment cannot be used again.
-</p>
+    <label><b>Payment Screenshot</b></label>
+    <input type="file" id="paymentShot" accept="image/*" required>
+
+    <label><b>Passport Size Photo</b></label>
+    <input type="file" id="passportPhoto" accept="image/*" required>
+
+    <button type="submit" id="submitBtn">Submit Registration</button>
+
+  </form>
+
+  <p class="note">
+    ❗ Fake or duplicate UTR entries will be rejected.<br>
+    ❗ Same UTR cannot be used again.
+  </p>
 </div>
 
 <script>
-function submitForm(){
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby-OiZuqsHgV88LiHPC3A4n7tpL7kSkbltaOUgRhjhbGSsmiDvgtiZcXlJ4Fs2q9JDWgQ/exec";
 
-  const name = document.getElementById("name").value.trim();
-  const age = document.getElementById("age").value.trim();
-  const contact = document.getElementById("contact").value.trim();
-  const talent = document.getElementById("talent").value;
-  const utr = document.getElementById("utr").value.trim();
-  const file = document.getElementById("screenshot").files[0];
+document.getElementById("regForm").addEventListener("submit", async function(e) {
+  e.preventDefault();
 
-  if(!name || !age || !contact || !talent || !utr || !file){
-    alert("Please fill all required fields.");
-    return;
-  }
+  const btn = document.getElementById("submitBtn");
+  btn.disabled = true;
+  btn.innerText = "Submitting...";
 
-  const reader = new FileReader();
-  reader.onload = function(){
+  const paymentFile = document.getElementById("paymentShot").files[0];
+  const passportFile = document.getElementById("passportPhoto").files[0];
 
-    fetch("https://script.google.com/macros/s/AKfycbzfYxAKCp1r-Y95pWNvuK57uo9idjfwJQUFHEmzuJSO3tCY8D2pt5SiybvJG1ImIn8/exec",{
-      method:"POST",
-      body: JSON.stringify({
-        name: name,
-        age: age,
-        contact: contact,
-        talent: talent,
-        upi_utr: utr,
-        screenshot_url: reader.result
-      })
-    })
-    .then(res => res.json())
-    .then(data => {
-      if(data.status === "success"){
-        alert("Registration successful.");
-        location.reload();
-      }else{
-        alert(data.message || "Submission failed.");
-      }
-    })
-    .catch(()=>{
-      alert("Server error. Please try again.");
-    });
+  const paymentBase64 = await toBase64(paymentFile);
+  const passportBase64 = await toBase64(passportFile);
 
+  const data = {
+    name: document.getElementById("name").value,
+    age: document.getElementById("age").value,
+    contact: document.getElementById("contact").value,
+    talent: document.getElementById("talent").value,
+    utr: document.getElementById("utr").value,
+    payment_screenshot: paymentBase64,
+    passport_photo: passportBase64
   };
 
-  reader.readAsDataURL(file);
+  try {
+    const res = await fetch(SCRIPT_URL, {
+      method: "POST",
+      body: JSON.stringify(data)
+    });
+
+    const result = await res.json();
+
+    if (result.status === "success") {
+      alert("Registration successful!");
+      document.getElementById("regForm").reset();
+    } else {
+      alert(result.message || "Submission failed");
+    }
+
+  } catch (err) {
+    alert("Server error. Try again.");
+  }
+
+  btn.disabled = false;
+  btn.innerText = "Submit Registration";
+});
+
+function toBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 }
 </script>
 
