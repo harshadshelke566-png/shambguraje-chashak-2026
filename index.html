@@ -62,8 +62,8 @@
   <img src="qr.png" alt="Google Pay QR Code">
 
   <p>
-    After payment, enter your <b>UPI Transaction ID (UTR)</b>  
-    and upload required screenshots.
+    After payment, enter your <b>UPI Transaction ID (UTR)</b><br>
+    and upload payment screenshot & passport photo.
   </p>
 
   <form id="regForm">
@@ -83,24 +83,24 @@
     <input type="text" id="utr" placeholder="UPI Transaction ID (UTR)" required>
 
     <label><b>Payment Screenshot</b></label>
-    <input type="file" id="paymentShot" accept="image/*" required>
+    <input type="file" id="paymentShot" name="payment_screenshot" accept="image/*" required>
 
     <label><b>Passport Size Photo</b></label>
-    <input type="file" id="passportPhoto" accept="image/*" required>
+    <input type="file" id="passportPhoto" name="passport_photo" accept="image/*" required>
 
     <button type="submit" id="submitBtn">Submit Registration</button>
 
   </form>
 
   <p class="note">
-    ❗ Fake or duplicate UTR entries will be rejected.<br>
+    ❗ Fake / duplicate UTR entries will be rejected.<br>
     ❗ Same UTR cannot be used again.
   </p>
 </div>
 
 <script>
 const SCRIPT_URL =
-"https://script.google.com/macros/s/AKfycby-OiZuqsHgV88LiHPC3A4n7tpL7kSkbltaOUgRhjhbGSsmiDvgtiZcXlJ4Fs2q9JDWgQ/exec";
+"https://script.google.com/macros/s/AKfycbydj4UtKO0Z2cYy0XVHuQq_NXyAqe54rMPbQDgF3T2kxhznrSdP43nVJS7oFcwFPNk8/exec";
 
 document.getElementById("regForm").addEventListener("submit", async function(e) {
   e.preventDefault();
@@ -109,26 +109,25 @@ document.getElementById("regForm").addEventListener("submit", async function(e) 
   btn.disabled = true;
   btn.innerText = "Submitting...";
 
-  const formData = new FormData();
-  formData.append("name", document.getElementById("name").value);
-  formData.append("age", document.getElementById("age").value);
-  formData.append("contact", document.getElementById("contact").value);
-  formData.append("talent", document.getElementById("talent").value);
-  formData.append("utr", document.getElementById("utr").value);
-  formData.append("payment_screenshot", document.getElementById("paymentShot").files[0]);
-  formData.append("passport_photo", document.getElementById("passportPhoto").files[0]);
+  const fd = new FormData();
+  fd.append("name", document.getElementById("name").value);
+  fd.append("age", document.getElementById("age").value);
+  fd.append("contact", document.getElementById("contact").value);
+  fd.append("talent", document.getElementById("talent").value);
+  fd.append("utr", document.getElementById("utr").value);
+  fd.append("payment_screenshot", document.getElementById("paymentShot").files[0]);
+  fd.append("passport_photo", document.getElementById("passportPhoto").files[0]);
 
   try {
     const res = await fetch(SCRIPT_URL, {
       method: "POST",
-      body: formData
+      body: fd
     });
 
     const result = await res.json();
 
     if (result.status === "success") {
-      alert("Registration successful!");
-      document.getElementById("regForm").reset();
+      window.location.href = "success.html";
     } else {
       alert(result.message || "Submission failed");
     }
