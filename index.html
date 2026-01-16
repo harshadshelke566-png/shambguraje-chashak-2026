@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Shambguraje Chashak 2026 – Registration</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
     body {
@@ -21,6 +21,7 @@
     }
     h1, h2 {
       text-align: center;
+      margin-bottom: 10px;
     }
     input, select, button {
       width: 100%;
@@ -37,10 +38,16 @@
     button:disabled {
       background: gray;
     }
+    label {
+      font-weight: bold;
+      margin-top: 10px;
+      display: block;
+    }
     .note {
       color: red;
       font-size: 13px;
       margin-top: 10px;
+      text-align: center;
     }
     img {
       width: 100%;
@@ -56,23 +63,23 @@
   <h1>SHAMBGURAJE CHASHAK 2026</h1>
   <h2>Player Registration</h2>
 
-  <p><b>Entry Fee: ₹300 (Google Pay / UPI)</b></p>
+  <p><b>Entry Fee: ₹300 (UPI / Google Pay)</b></p>
 
   <!-- QR CODE IMAGE -->
-  <img src="qr.png" alt="Google Pay QR Code">
+  <img src="qr.png" alt="UPI QR Code">
 
   <p>
     After payment, enter your <b>UPI Transaction ID (UTR)</b><br>
-    and upload payment screenshot & passport photo.
+    and upload <b>payment screenshot</b> & <b>passport photo</b>.
   </p>
 
   <form id="regForm">
 
-    <input type="text" id="name" placeholder="Full Name" required>
-    <input type="number" id="age" placeholder="Age" required>
-    <input type="tel" id="contact" placeholder="Mobile Number" required>
+    <input type="text" name="name" placeholder="Full Name" required>
+    <input type="number" name="age" placeholder="Age" required>
+    <input type="tel" name="contact" placeholder="Mobile Number" required>
 
-    <select id="talent" required>
+    <select name="talent" required>
       <option value="">Select Role</option>
       <option>Bowler</option>
       <option>Batsman</option>
@@ -80,27 +87,27 @@
       <option>Wicket Keeper</option>
     </select>
 
-    <input type="text" id="utr" placeholder="UPI Transaction ID (UTR)" required>
+    <input type="text" name="utr" placeholder="UPI Transaction ID (UTR)" required>
 
-    <label><b>Payment Screenshot</b></label>
-    <input type="file" id="paymentShot" name="payment_screenshot" accept="image/*" required>
+    <label>Payment Screenshot</label>
+    <input type="file" name="payment_screenshot" accept="image/*" required>
 
-    <label><b>Passport Size Photo</b></label>
-    <input type="file" id="passportPhoto" name="passport_photo" accept="image/*" required>
+    <label>Passport Size Photo</label>
+    <input type="file" name="passport_photo" accept="image/*" required>
 
     <button type="submit" id="submitBtn">Submit Registration</button>
 
   </form>
 
   <p class="note">
-    ❗ Fake / duplicate UTR entries will be rejected.<br>
+    ❗ Fake or duplicate UTR entries will be rejected.<br>
     ❗ Same UTR cannot be used again.
   </p>
 </div>
 
 <script>
 const SCRIPT_URL =
-"https://script.google.com/macros/s/AKfycbydj4UtKO0Z2cYy0XVHuQq_NXyAqe54rMPbQDgF3T2kxhznrSdP43nVJS7oFcwFPNk8/exec";
+"https://script.google.com/macros/s/AKfycbxIY5k28YDgV3v_OFZrpdTOyCxEiH5FgqOQPtObcxvmBeXAoX7UbSaSFlpcFP5DanoKyQ/exec";
 
 document.getElementById("regForm").addEventListener("submit", async function(e) {
   e.preventDefault();
@@ -109,31 +116,25 @@ document.getElementById("regForm").addEventListener("submit", async function(e) 
   btn.disabled = true;
   btn.innerText = "Submitting...";
 
-  const fd = new FormData();
-  fd.append("name", document.getElementById("name").value);
-  fd.append("age", document.getElementById("age").value);
-  fd.append("contact", document.getElementById("contact").value);
-  fd.append("talent", document.getElementById("talent").value);
-  fd.append("utr", document.getElementById("utr").value);
-  fd.append("payment_screenshot", document.getElementById("paymentShot").files[0]);
-  fd.append("passport_photo", document.getElementById("passportPhoto").files[0]);
+  const formData = new FormData(this);
 
   try {
     const res = await fetch(SCRIPT_URL, {
       method: "POST",
-      body: fd
+      body: formData
     });
 
     const result = await res.json();
 
     if (result.status === "success") {
+      // ✅ SUCCESS PAGE REDIRECT (ACTIVE)
       window.location.href = "success.html";
     } else {
-      alert(result.message || "Submission failed");
+      alert("❌ " + (result.message || "Submission failed"));
     }
 
   } catch (err) {
-    alert("Server error. Try again.");
+    alert("❌ Server error. Try again.");
   }
 
   btn.disabled = false;
