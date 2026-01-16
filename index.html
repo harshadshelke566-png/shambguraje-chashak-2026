@@ -62,8 +62,8 @@
   <img src="qr.png" alt="Google Pay QR Code">
 
   <p>
-    After successful payment, enter your <b>UPI Transaction ID (UTR)</b>  
-    and upload <b>payment screenshot</b>.
+    After payment, enter your <b>UPI Transaction ID (UTR)</b>  
+    and upload required screenshots.
   </p>
 
   <form id="regForm">
@@ -99,7 +99,8 @@
 </div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby-OiZuqsHgV88LiHPC3A4n7tpL7kSkbltaOUgRhjhbGSsmiDvgtiZcXlJ4Fs2q9JDWgQ/exec";
+const SCRIPT_URL =
+"https://script.google.com/macros/s/AKfycby-OiZuqsHgV88LiHPC3A4n7tpL7kSkbltaOUgRhjhbGSsmiDvgtiZcXlJ4Fs2q9JDWgQ/exec";
 
 document.getElementById("regForm").addEventListener("submit", async function(e) {
   e.preventDefault();
@@ -108,26 +109,19 @@ document.getElementById("regForm").addEventListener("submit", async function(e) 
   btn.disabled = true;
   btn.innerText = "Submitting...";
 
-  const paymentFile = document.getElementById("paymentShot").files[0];
-  const passportFile = document.getElementById("passportPhoto").files[0];
-
-  const paymentBase64 = await toBase64(paymentFile);
-  const passportBase64 = await toBase64(passportFile);
-
-  const data = {
-    name: document.getElementById("name").value,
-    age: document.getElementById("age").value,
-    contact: document.getElementById("contact").value,
-    talent: document.getElementById("talent").value,
-    utr: document.getElementById("utr").value,
-    payment_screenshot: paymentBase64,
-    passport_photo: passportBase64
-  };
+  const formData = new FormData();
+  formData.append("name", document.getElementById("name").value);
+  formData.append("age", document.getElementById("age").value);
+  formData.append("contact", document.getElementById("contact").value);
+  formData.append("talent", document.getElementById("talent").value);
+  formData.append("utr", document.getElementById("utr").value);
+  formData.append("payment_screenshot", document.getElementById("paymentShot").files[0]);
+  formData.append("passport_photo", document.getElementById("passportPhoto").files[0]);
 
   try {
     const res = await fetch(SCRIPT_URL, {
       method: "POST",
-      body: JSON.stringify(data)
+      body: formData
     });
 
     const result = await res.json();
@@ -146,15 +140,6 @@ document.getElementById("regForm").addEventListener("submit", async function(e) 
   btn.disabled = false;
   btn.innerText = "Submit Registration";
 });
-
-function toBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
 </script>
 
 </body>
